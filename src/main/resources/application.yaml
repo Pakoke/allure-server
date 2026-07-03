@@ -79,6 +79,14 @@ logging:
     ru.iopump.qa.allure: INFO # Allure Server Logs
     ru.iopump.qa.allure.api: DEBUG
 
+datadog:
+  enabled: false
+  host: localhost
+  port: 8125
+  prefix: ${DATADOG_PREFIX:allure}
+  tags: []
+  dry-run: false
+
 tms:
   enabled: false
   host: tms.localhost

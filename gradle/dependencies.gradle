@@ -71,6 +71,8 @@ dependencies {
     }
 
     implementation "commons-io:commons-io:$apacheIoVersion"
+    /* Datadog DogStatsD */
+    implementation 'com.datadoghq:java-dogstatsd-client:4.4.3'
     /* Logging API*/
     implementation 'org.slf4j:slf4j-api'
     /* Logging IMPL*/

@@ -14,6 +14,8 @@ services:
       TMS_HOST: jira.localhost
       TMS_TOKEN: '<token-here>'
       TMS_DRYRUN: 'false'
+      DATADOG_ENABLED: 'false'
+      DATADOG_PREFIX: 'voxsmart.allure'
     ports:
       - 8080:8080
     volumes:
