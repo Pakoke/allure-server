@@ -1,0 +1,50 @@
+{
+  "packages": [
+    "jdk@21",
+    "gradle@latest",
+    "nodejs@20",
+    "docker-compose@latest"
+  ],
+  "shell": {
+    "init_hook": [
+      "export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))",
+      "[ -f .envrc ] && . .envrc || true",
+      "echo '═══════════════════════════════════════════════════════════'",
+      "echo 'Allure Server - Devbox Environment Ready!'",
+      "echo '═══════════════════════════════════════════════════════════'",
+      "echo 'Java:' $(java --version 2>&1 | head -1)",
+      "echo 'Gradle:' $(gradle --version 2>&1 | grep 'Gradle' | head -1)",
+      "echo 'Node.js:' $(node --version 2>&1)",
+      "echo 'Docker:' $(docker --version 2>&1 || echo 'not installed')",
+      "echo '═══════════════════════════════════════════════════════════'",
+      "echo ''",
+      "echo 'Quick Start Commands:'",
+      "echo '  devbox run build         - Build the project'",
+      "echo '  devbox run test          - Run tests'",
+      "echo '  devbox run run           - Run locally (H2 in-memory DB)'",
+      "echo '  devbox run run:pg        - Run with PostgreSQL (docker-compose)'",
+      "echo '  devbox run docker:build  - Build Docker image'",
+      "echo '  devbox run clean         - Clean build artifacts'",
+      "echo '═══════════════════════════════════════════════════════════'"
+    ],
+    "scripts": {
+      "build": ["./gradlew build -x test"],
+      "test": ["./gradlew test"],
+      "run": ["./gradlew bootRun"],
+      "run:pg": [
+        "docker compose up -d postgres",
+        "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/allure SPRING_DATASOURCE_USERNAME=postgres SPRING_DATASOURCE_PASSWORD=postgres SPRING_JPA_DATABASE=postgresql ./gradlew bootRun"
+      ],
+      "run:debug": ["./gradlew bootRun --debug-jvm"],
+      "run:pg:debug": [
+        "docker compose up -d postgres",
+        "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/allure SPRING_DATASOURCE_USERNAME=postgres SPRING_DATASOURCE_PASSWORD=postgres SPRING_JPA_DATABASE=postgresql ./gradlew bootRun --debug-jvm"
+      ],
+      "docker:build": ["./gradlew build -x test && docker build -t allure-server:local ."],
+      "docker:up": ["docker compose up -d"],
+      "docker:down": ["docker compose down"],
+      "docker:logs": ["docker compose logs -f"],
+      "clean": ["./gradlew clean"]
+    }
+  }
+}
