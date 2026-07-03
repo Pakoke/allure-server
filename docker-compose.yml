@@ -2,7 +2,7 @@ version: '3.7'
 services:
   allure-server:
     # For local debug #
-    # build: .
+    build: .
     image: kochetkovma/allure-server:2.13.6
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/allure

@@ -55,3 +55,6 @@ CA.pem
 **/generated/**
 *generated*
 *-private*
+
+# Java 
+bin

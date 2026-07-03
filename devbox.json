@@ -2,7 +2,7 @@
   "packages": [
     "jdk@21",
     "gradle@latest",
-    "nodejs@20",
+    "nodejs@24",
     "docker-compose@latest"
   ],
   "shell": {
