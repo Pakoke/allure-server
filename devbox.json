@@ -24,6 +24,7 @@
       "echo '  devbox run run           - Run locally (H2 in-memory DB)'",
       "echo '  devbox run run:pg        - Run with PostgreSQL (docker-compose)'",
       "echo '  devbox run docker:build  - Build Docker image'",
+      "echo '  devbox run env:init      - Create .env from template'",
       "echo '  devbox run clean         - Clean build artifacts'",
       "echo '═══════════════════════════════════════════════════════════'"
     ],
@@ -40,6 +41,7 @@
         "docker compose up -d postgres",
         "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/allure SPRING_DATASOURCE_USERNAME=postgres SPRING_DATASOURCE_PASSWORD=postgres SPRING_JPA_DATABASE=postgresql ./gradlew bootRun --debug-jvm"
       ],
+      "env:init": ["if [ -f .env ]; then echo '.env already exists, skipping'; else cp .env.template .env && echo '.env created from template — edit it with your values'; fi"],
       "docker:build": ["./gradlew build -x test && docker build -t allure-server:local ."],
       "docker:up": ["docker compose up -d"],
       "docker:down": ["docker compose down"],

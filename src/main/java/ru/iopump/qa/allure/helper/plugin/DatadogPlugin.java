@@ -39,7 +39,9 @@ public class DatadogPlugin implements AllureServerPlugin {
             .flatMap(lr -> lr.getResults().stream())
             .toList();
 
-        var reportPath = reportDirectory.getFileName().toString();
+        var reportUuid = reportDirectory.getFileName().toString();
+        // ponytail: report_name from context is the human-friendly path; fall back to UUID if null
+        var reportName = context.getReportPath() != null ? context.getReportPath() : reportUuid;
         var prefix = properties.getPrefix();
         var dryRun = properties.isDryRun();
 
@@ -55,21 +57,21 @@ public class DatadogPlugin implements AllureServerPlugin {
             .mapToLong(tr -> tr.getTime().getDuration())
             .sum();
 
-        String pathTag = "path:" + reportPath;
-        String[] globalTags = buildGlobalTags(properties.getTags(), pathTag);
+        String nameTag = "report_name:" + reportName;
+        String[] globalTags = buildGlobalTags(properties.getTags(), nameTag);
 
         if (dryRun) {
             logDryRun(prefix, total, passed, failed, broken, skipped, unknown, passRate, durationMs, globalTags);
-            sendLabelMetrics(prefix, allResults, pathTag, globalTags, properties, null);
+            sendLabelMetrics(prefix, allResults, nameTag, globalTags, properties, null);
             return;
         }
 
-        try (StatsDClient client = new NonBlockingStatsDClientBuilder()
+        StatsDClient client = new NonBlockingStatsDClientBuilder()
             .prefix(prefix)
             .hostname(properties.getHost())
             .port(properties.getPort())
-            .build()) {
-
+            .build();
+        try {
             client.gauge("tests.total", total, globalTags);
             client.gauge("tests.passed", passed, withTag(globalTags, "status:passed"));
             client.gauge("tests.failed", failed, withTag(globalTags, "status:failed"));
@@ -79,21 +81,25 @@ public class DatadogPlugin implements AllureServerPlugin {
             client.gauge("tests.pass_rate", passRate, globalTags);
             client.gauge("tests.duration_ms", durationMs, globalTags);
 
-            sendLabelMetrics(prefix, allResults, pathTag, globalTags, properties, client);
+            sendLabelMetrics(prefix, allResults, nameTag, globalTags, properties, client);
 
             log.info("[PLUGIN {}] Sent metrics: total={}, passed={}, failed={}, broken={}, skipped={}, unknown={}, pass_rate={}, duration_ms={}",
                 getName(), total, passed, failed, broken, skipped, unknown, String.format("%.1f", passRate), durationMs);
+        } finally {
+            // ponytail: NonBlockingStatsDClient sender thread needs time to flush queued UDP packets before shutdown
+            try { Thread.sleep(3000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            client.stop();
         }
     }
 
-    private void sendLabelMetrics(String prefix, List<TestResult> allResults, String pathTag,
+    private void sendLabelMetrics(String prefix, List<TestResult> allResults, String nameTag,
                                   String[] globalTags, DatadogProperties properties, StatsDClient client) {
-        sendGroupedMetric("suite", "tests.by_suite", allResults, pathTag, properties, client);
-        sendGroupedMetric("feature", "tests.by_feature", allResults, pathTag, properties, client);
+        sendGroupedMetric("suite", "tests.by_suite", allResults, nameTag, properties, client);
+        sendGroupedMetric("feature", "tests.by_feature", allResults, nameTag, properties, client);
     }
 
     private void sendGroupedMetric(String labelName, String metricName, List<TestResult> allResults,
-                                   String pathTag, DatadogProperties properties, StatsDClient client) {
+                                   String nameTag, DatadogProperties properties, StatsDClient client) {
         // Group by label value + status
         Map<String, Map<Status, Long>> grouped = allResults.stream()
             .flatMap(tr -> tr.getLabels().stream()
@@ -106,7 +112,7 @@ public class DatadogPlugin implements AllureServerPlugin {
 
         grouped.forEach((labelValue, statusCounts) ->
             statusCounts.forEach((status, count) -> {
-                String[] tags = {pathTag, labelName + ":" + labelValue, "status:" + status.name().toLowerCase()};
+                String[] tags = {nameTag, labelName + ":" + labelValue, "status:" + status.name().toLowerCase()};
                 String[] allTags = mergeTags(properties.getTags(), tags);
                 if (client != null) {
                     client.gauge(metricName, count, allTags);

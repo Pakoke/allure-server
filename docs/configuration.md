@@ -74,6 +74,22 @@ When `paths` entries are present the cleanup scheduler uses the minimum of all `
 
 ---
 
+## DatadogProperties
+
+**Prefix:** `datadog`
+**Source:** `src/main/java/ru/iopump/qa/allure/properties/DatadogProperties.java`
+
+| Property | Default | Description |
+|---|---|---|
+| `datadog.enabled` | `false` | Enables Datadog metrics plugin |
+| `datadog.host` | `localhost` | DogStatsD agent hostname |
+| `datadog.port` | `8125` | DogStatsD agent UDP port |
+| `datadog.prefix` | `allure` (env: `DATADOG_PREFIX`) | Metric name prefix (e.g. `voxsmart.allure`) |
+| `datadog.tags` | `[]` | Extra global tags added to every metric |
+| `datadog.dry-run` | `false` | When `true`, metrics are logged but not sent |
+
+---
+
 ## Spring Profiles
 
 **Sources:**
@@ -105,6 +121,8 @@ Activate a profile via `SPRING_PROFILES_ACTIVE=oauth` or `--spring.profiles.acti
 | `TMS_HOST` | `tms.host` | YouTrack hostname |
 | `TMS_TOKEN` | `tms.token` | YouTrack bearer token |
 | `TMS_DRYRUN` | `tms.dry-run` | `true` for simulation mode |
+| `DATADOG_ENABLED` | `datadog.enabled` | `true` to enable Datadog metrics |
+| `DATADOG_PREFIX` | `datadog.prefix` | Metric prefix (e.g. `voxsmart.allure`) |
 | `ALLURE_CLEAN_AGEDAYS` | `allure.clean.ageDays` | Global report retention in days |
 | `OAUTH2_GOOGLE_ALLURE_CLIENT_ID` | `spring.security.oauth2...google.client-id` | Required when `oauth` profile is active |
 | `OAUTH2_GOOGLE_ALLURE_CLIENT_SECRET` | `spring.security.oauth2...google.client-secret` | Required when `oauth` profile is active |

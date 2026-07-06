@@ -29,5 +29,8 @@ public interface AllureServerPlugin {
         BeanFactory beanFactory();
 
         String getReportUrl();
+
+        /** Human-friendly report path (e.g. "unified-ui/regression"), or null if unavailable. */
+        String getReportPath();
     }
 }

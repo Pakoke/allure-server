@@ -56,5 +56,8 @@ CA.pem
 *generated*
 *-private*
 
-# Java 
+# Environment
+.env
+
+# Java
 bin

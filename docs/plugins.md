@@ -93,7 +93,39 @@ Key behaviours:
 - Uses Feign client `IssuesClient` (obtained via `context.beanFactory()`).
 - Source: `src/main/java/ru/iopump/qa/allure/api/youtrack/IssuesClient.java`
 
-### 3. ExecutorCiPlugin
+### 3. DatadogPlugin
+
+Source: `src/main/java/ru/iopump/qa/allure/helper/plugin/DatadogPlugin.java`
+
+Name: `"Datadog metrics"`. Enabled only when `datadog.enabled=true`.
+
+Sends test report metrics to Datadog via DogStatsD (UDP) in `onGenerationFinish`.
+
+**Metrics sent** (all as gauges, prefixed with `datadog.prefix`):
+
+| Metric | Tags | Description |
+|---|---|---|
+| `tests.total` | `path` | Total test count |
+| `tests.passed` | `path`, `status:passed` | Passed tests |
+| `tests.failed` | `path`, `status:failed` | Failed tests |
+| `tests.broken` | `path`, `status:broken` | Broken tests |
+| `tests.skipped` | `path`, `status:skipped` | Skipped tests |
+| `tests.unknown` | `path`, `status:unknown` | Unknown status tests |
+| `tests.pass_rate` | `path` | `passed / (total - skipped) * 100` |
+| `tests.duration_ms` | `path` | Sum of all test durations |
+| `tests.by_suite` | `path`, `suite:{name}`, `status:{status}` | Count per suite label + status |
+| `tests.by_feature` | `path`, `feature:{name}`, `status:{status}` | Count per feature label + status |
+
+**Key behaviours:**
+- Creates a `NonBlockingStatsDClient` per invocation, sends all gauges, then closes.
+- `path` tag is the report directory name (UUID).
+- Extra global tags configurable via `datadog.tags` list.
+- When `datadog.dryRun=true`, all metrics are logged but no UDP packets are sent.
+- Properties obtained via `context.beanFactory().getBean(DatadogProperties.class)`.
+
+Source: `src/main/java/ru/iopump/qa/allure/properties/DatadogProperties.java`
+
+### 4. ExecutorCiPlugin
 
 Source: `src/main/java/ru/iopump/qa/allure/helper/ExecutorCiPlugin.java`
 

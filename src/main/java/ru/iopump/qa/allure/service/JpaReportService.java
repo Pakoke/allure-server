@@ -226,7 +226,7 @@ public class JpaReportService {
                 .orElse(resultDirs);
 
             // Generate new report with history
-            reportGenerator.generate(destination, resultDirsToGenerate, reportUrl);
+            reportGenerator.generate(destination, resultDirsToGenerate, reportUrl, reportPath);
 
             log.info("Report '{}' generated according to results '{}'", destination, resultDirsToGenerate);
         } finally {

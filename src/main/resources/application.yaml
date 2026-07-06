@@ -81,7 +81,7 @@ logging:
 
 datadog:
   enabled: false
-  host: localhost
+  host: ${DATADOG_HOST:localhost}
   port: 8125
   prefix: ${DATADOG_PREFIX:allure}
   tags: []

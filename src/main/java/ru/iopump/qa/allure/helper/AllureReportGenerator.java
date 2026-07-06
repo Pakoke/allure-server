@@ -102,8 +102,8 @@ public final class AllureReportGenerator {
         }
     }
 
-    public Path generate(Path outputDirectory, List<Path> resultsDirectories, String reportUrl) {
-        var ctx = new PluginContext(reportUrl);
+    public Path generate(Path outputDirectory, List<Path> resultsDirectories, String reportUrl, String reportPath) {
+        var ctx = new PluginContext(reportUrl, reportPath);
 
         var effectiveListeners = listeners.stream()
             .filter(it -> {
@@ -134,6 +134,7 @@ public final class AllureReportGenerator {
     private class PluginContext implements AllureServerPlugin.Context {
 
         private final String reportUrl;
+        private final String reportPath;
 
         @Override
         public AllureProperties getAllureProperties() {
